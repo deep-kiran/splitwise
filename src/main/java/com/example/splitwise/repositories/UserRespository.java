@@ -16,4 +16,8 @@ public class UserRespository {
         }
         userHashMap.put(user.getUserId(),user);
     }
+
+    public User getUserById(String id){
+        return userHashMap.get(id);
+    }
 }
