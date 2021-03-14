@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1")
 public class UserController {
 
     @Autowired
@@ -24,9 +24,17 @@ public class UserController {
 
     @PostMapping("/create")
     public String createUser(@RequestBody User user){
+        validateUser(user);
         userRespository.addUser(user);
         return user.getUserId();
     }
+
+    private void validateUser(User user) {
+        if (user==null || user.getName()==null ){
+            throw new InvalidValuesException("Values not present");
+        }
+    }
+
     @GetMapping("/balance/{id}")
     public String usersBalance(@PathVariable (name = "id")String id){
          return expenseManager.showBalances(id);
@@ -38,9 +46,13 @@ public class UserController {
         expenseManager.createExpense(expense.getSplitList(),expense.getExpenseType(),expense.getTotalAmount());
     }
 
+    @PostMapping("/settle/{userId}")
+    public String settle(@PathVariable (name = "userId")String userId){
+        return expenseManager.settle(userId);
+    }
     private void validateExpense(Expense expense) {
         if(expense.getExpenseType() ==null || expense.getSplitList().size()==0){
-            throw new InvalidValuesException();
+            throw new InvalidValuesException("Values not present");
         }
     }
 }

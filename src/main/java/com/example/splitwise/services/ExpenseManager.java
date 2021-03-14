@@ -10,18 +10,27 @@ import java.util.*;
 public class ExpenseManager {
     ArrayList<Expense> expenses =new ArrayList<>();
     HashMap<String, Map<String,Double>> balanceSheet =new HashMap<>(); //userId --> userId balance
+
+    public Split getType(Split split){
+        if(split.getSplitType()==SplitType.EXACT){
+            return (ExactSplit) split;
+        }
+        return (PercentageSplit)split;
+    }
+
+
         public void createExpense(List<Split> splitList, ExpenseType expenseType, double totalAmount) {
             Expense expense;
             switch (expenseType) {
                 case EXACT:
                     expense = new Expense(expenseType.EXACT, splitList, totalAmount);
-                    if(expense.validateExactExpense()){
+                    if(!expense.validateExactExpense()){
                         throw new InvalidExpenseDataException();
                     };
                     break;
                 case PERCENTAGE:
                     expense = new Expense(expenseType.PERCENTAGE, splitList, totalAmount);
-                    if(expense.validatePercentageExpense()){
+                    if(!expense.validatePercentageExpense()){
                         throw new InvalidExpenseDataException();
                     };
                     break;
@@ -50,24 +59,24 @@ public class ExpenseManager {
                 }
             });
 
-            for (Split paidByUser : paidByUsersList) {
-                double baseAmount = paidByUser.getPaidAmount() / paidToUsersList.size();
-                balanceSheet.put(paidByUser.getUser().getUserId(), new HashMap<>());
-                for (Split paidToUsers : paidToUsersList) {
-                    String paidTo = paidToUsers.getUser().getUserId();
-                    Map<String, Double> balanceOfUser = balanceSheet.get(paidByUser);
-                    if (!balanceOfUser.containsKey(paidTo)) {
-                        balanceOfUser.put(paidTo, 0.0);
-                    }
-                    balanceOfUser.put(paidTo, balanceOfUser.get(paidTo) + baseAmount);
-
-                    balanceOfUser = balanceSheet.get(paidTo);
-                    if (!balanceOfUser.containsKey(paidByUser.getUser().getUserId())) {
-                        balanceOfUser.put(paidByUser.getUser().getUserId(), 0.0);
-                    }
-                    balanceOfUser.put(paidByUser.getUser().getUserId(), balanceOfUser.get(paidByUser) - baseAmount);
-                }
-            }
+//            for (Split paidByUser : paidByUsersList) {
+//                double baseAmount = paidByUser.getPaidAmount() / paidToUsersList.size();
+//                balanceSheet.put(paidByUser.getUser().getUserId(), new HashMap<>());
+//                for (Split paidToUsers : paidToUsersList) {
+//                    String paidTo = paidToUsers.getUser().getUserId();
+//                    Map<String, Double> balanceOfUser = balanceSheet.get(paidByUser);
+//                    if (!balanceOfUser.containsKey(paidTo)) {
+//                        balanceOfUser.put(paidTo, 0.0);
+//                    }
+//                    balanceOfUser.put(paidTo, balanceOfUser.get(paidTo) + baseAmount);
+//
+//                    balanceOfUser = balanceSheet.get(paidTo);
+//                    if (!balanceOfUser.containsKey(paidByUser.getUser().getUserId())) {
+//                        balanceOfUser.put(paidByUser.getUser().getUserId(), 0.0);
+//                    }
+//                    balanceOfUser.put(paidByUser.getUser().getUserId(), balanceOfUser.get(paidByUser) - baseAmount);
+//                }
+//            }
         }
 
         public String showBalances(String userId){

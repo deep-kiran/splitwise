@@ -44,15 +44,5 @@ public class Expense {
         }
         return percentage ==100;
     }
-    public void calculateSplits(ExpenseType expenseType, double totalAmount, List<Split> splitList){
-       switch (expenseType){
-           case PERCENTAGE:
-               if(validatePercentageExpense(totalAmount,splitList)){
-
-               }
-
-           case EXACT:
-               validateExactExpense(totalAmount,splitList);
-       }
-    }
+    
 }

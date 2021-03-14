@@ -9,6 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public abstract class Split {
     private User user;
-    SplitType splitType;
-    private double paidAmount;
+    private SplitType splitType;
 }
