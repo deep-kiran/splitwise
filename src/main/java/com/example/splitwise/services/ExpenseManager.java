@@ -131,15 +131,27 @@ public class ExpenseManager {
             StringBuilder sb =new StringBuilder();
             Map<String,Double> map  =balanceSheet.get(userId);
             for(String otherUser : map.keySet()){
-                if(map.get(otherUser)<0){
+                if(map.get(otherUser)<0){   //userId owes otherUser balance
                     generateString(sb,map,otherUser,userId);
                     Map<String,Double> map2 = balanceSheet.get(otherUser);
                     map2.put(userId,0.0);
+                    map.put(otherUser,0.0);
                     ArrayList<Split> splitArrayList =new ArrayList<>();
                     double balancedue =map.get(otherUser);
                     splitArrayList.add(new ExactSplit(userRespository.getUserById(userId),balancedue));
                     splitArrayList.add(new ExactSplit(userRespository.getUserById(otherUser),0));
-                    expenses.add(new Expense(ExpenseType.EXACT,splitArrayList,map.get(otherUser)));
+                    expenses.add(new Expense(ExpenseType.EXACT,splitArrayList,balancedue));
+                }else{                    //userId gains balance from other user
+                    generateString(sb,map,userId,otherUser);
+                    Map<String,Double> map2 = balanceSheet.get(otherUser);
+                    map2.put(userId,0.0);
+                    map.put(otherUser,0.0);
+                    ArrayList<Split> splitArrayList =new ArrayList<>();
+                    double balancedue =map.get(otherUser);
+                    splitArrayList.add(new ExactSplit(userRespository.getUserById(userId),0));
+                    splitArrayList.add(new ExactSplit(userRespository.getUserById(otherUser),balancedue));
+                    expenses.add(new Expense(ExpenseType.EXACT,splitArrayList,balancedue));
+
                 }
 
             }
