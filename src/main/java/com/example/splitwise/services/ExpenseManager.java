@@ -138,6 +138,7 @@ public class ExpenseManager {
                     ArrayList<Split> splitArrayList =new ArrayList<>();
                     double balancedue =map.get(otherUser);
                     splitArrayList.add(new ExactSplit(userRespository.getUserById(userId),balancedue));
+                    splitArrayList.add(new ExactSplit(userRespository.getUserById(otherUser),0));
                     expenses.add(new Expense(ExpenseType.EXACT,splitArrayList,map.get(otherUser)));
                 }
 
