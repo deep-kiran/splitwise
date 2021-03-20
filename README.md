@@ -12,4 +12,4 @@ Access the apis via localhost:8080/api/v1
 
 
 ## Database diagram
- ![img_1.png](img_1.png)
+![img_2.png](img_2.png)
