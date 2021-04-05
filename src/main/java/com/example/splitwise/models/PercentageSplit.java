@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class PercentageSplit extends Split{
     private double percentageShare;
-    public PercentageSplit(User user, SplitType splitType, double percentageShare) {
+    public PercentageSplit(String user, SplitType splitType, double percentageShare) {
         super(user, SplitType.PERCENTAGE);
         this.percentageShare =percentageShare;
     }

@@ -8,6 +8,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public abstract class Split {
-    private User user;
+    private String userId;
     private SplitType splitType;
+    String activityId;
+
+
+    public Split(String userId, SplitType splitType) {
+        this.userId = userId;
+        this.splitType =splitType;
+    }
 }

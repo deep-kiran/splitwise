@@ -2,15 +2,19 @@ package com.example.splitwise.apis;
 
 
 import com.example.splitwise.exceptions.InvalidValuesException;
-import com.example.splitwise.models.Expense;
+import com.example.splitwise.models.Activity;
+import com.example.splitwise.models.Split;
 import com.example.splitwise.models.User;
+import com.example.splitwise.repositories.ActivityRepository;
 import com.example.splitwise.repositories.UserRespository;
 import com.example.splitwise.services.ExpenseManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -21,6 +25,9 @@ public class UserController {
 
     @Autowired
     ExpenseManager expenseManager;
+
+    @Autowired
+    ActivityRepository activityRepository;
 
     @PostMapping("/create")
     public String createUser(@RequestBody User user){
@@ -41,18 +48,28 @@ public class UserController {
     }
 
     @PostMapping("/addExpense")
-    public void addExpense( Expense expense){
-        validateExpense(expense);
-        expenseManager.createExpense(expense.getSplitList(),expense.getExpenseType(),expense.getTotalAmount());
+    public void addExpense( List<Split> splitList){
+        String activityId = splitList.get(0).getActivityId();
+        Activity activity = activityRepository.getActivityById(activityId);
+        activity.getSplitList().addAll(splitList);
+        activityRepository.addActivity(activity);
     }
 
     @PostMapping("/settle/{userId}")
     public String settle(@PathVariable (name = "userId")String userId){
         return expenseManager.settle(userId);
     }
-    private void validateExpense(Expense expense) {
-        if(expense.getExpenseType() ==null || expense.getSplitList().size()==0){
-            throw new InvalidValuesException("Values not present");
-        }
+
+    @PostMapping("/createActivity")
+    public String createActivity(@RequestBody Activity activity){
+        return activityRepository.addActivity(activity);
+    }
+
+
+    @GetMapping("/generateTimeLine/{activityId}")
+    public List<String> getTransactions(@PathVariable (name ="activityId") String activityId){
+        return activityRepository.getActivityById(activityId).getTransactions().stream().map(transaction -> {
+            return transaction.toString();
+        }).collect(Collectors.toList());
     }
 }

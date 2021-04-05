@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class ExactSplit extends Split{
     double amountPaidByUser;
-    public ExactSplit(User user,  double amountPaidByUser) {
-        super(user, SplitType.EXACT);
+    public ExactSplit(String userId,  double amountPaidByUser) {
+        super(userId, SplitType.EXACT);
         this.amountPaidByUser =amountPaidByUser;
     }
 }

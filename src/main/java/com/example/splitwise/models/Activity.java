@@ -3,19 +3,23 @@ package com.example.splitwise.models;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class Expense {
+public class Activity {
     private String id;
+    private String activityName;
+    private String description;
+    private List<Split> splitList =new ArrayList<>();
     private ExpenseType expenseType;
     private double totalAmount;
-    private List<Split> splitList;
+    private List<Transaction> transactions =new ArrayList<>();
 
 
-    public Expense( ExpenseType expenseType, List<Split> splitList, double totalAmount) {
+    public Activity( ExpenseType expenseType, List<Split> splitList, double totalAmount) {
         this.id = UUID.randomUUID().toString();
         this.splitList =splitList;
         this.expenseType =expenseType;
@@ -44,5 +48,5 @@ public class Expense {
         }
         return percentage ==100;
     }
-    
+
 }

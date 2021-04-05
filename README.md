@@ -7,7 +7,7 @@ install maven dependencies
 
 Access the apis via localhost:8080/api/v1
 
-## Class diagram 
+## Class diagram
 ![img.png](img.png)
 
 
