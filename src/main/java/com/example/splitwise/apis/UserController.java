@@ -7,12 +7,10 @@ import com.example.splitwise.models.Split;
 import com.example.splitwise.models.User;
 import com.example.splitwise.repositories.ActivityRepository;
 import com.example.splitwise.repositories.UserRespository;
-import com.example.splitwise.services.ExpenseManager;
+import com.example.splitwise.services.ExpenseManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,12 +22,12 @@ public class UserController {
     UserRespository userRespository;
 
     @Autowired
-    ExpenseManager expenseManager;
+    ExpenseManagementService expenseManager;
 
     @Autowired
     ActivityRepository activityRepository;
 
-    @PostMapping("/create")
+    @PostMapping("/user/create")
     public String createUser(@RequestBody User user){
         validateUser(user);
         userRespository.addUser(user);
@@ -49,10 +47,8 @@ public class UserController {
 
     @PostMapping("/addExpense")
     public void addExpense( List<Split> splitList){
-        String activityId = splitList.get(0).getActivityId();
-        Activity activity = activityRepository.getActivityById(activityId);
-        activity.getSplitList().addAll(splitList);
-        activityRepository.addActivity(activity);
+        expenseManager.addExpenses(splitList);
+
     }
 
     @PostMapping("/settle/{userId}")
@@ -65,8 +61,7 @@ public class UserController {
         return activityRepository.addActivity(activity);
     }
 
-
-    @GetMapping("/generateTimeLine/{activityId}")
+    @GetMapping("/getTimeline/{activityId}")
     public List<String> getTransactions(@PathVariable (name ="activityId") String activityId){
         return activityRepository.getActivityById(activityId).getTransactions().stream().map(transaction -> {
             return transaction.toString();

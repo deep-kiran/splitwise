@@ -1,5 +1,6 @@
 package com.example.splitwise.models;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +11,13 @@ import lombok.Setter;
 public abstract class Split {
     private String userId;
     private SplitType splitType;
-    String activityId;
+    String activityName;
+
+    @JsonUnwrapped
+    ExactSplit exactSplit;
+
+    @JsonUnwrapped
+    PercentageSplit percentageSplit;
 
 
     public Split(String userId, SplitType splitType) {

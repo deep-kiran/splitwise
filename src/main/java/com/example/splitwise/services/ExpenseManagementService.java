@@ -1,18 +1,16 @@
 package com.example.splitwise.services;
 
-import com.example.splitwise.exceptions.InvalidExpenseDataException;
-import com.example.splitwise.exceptions.NoSuchExpenseTypeException;
 import com.example.splitwise.models.*;
+import com.example.splitwise.repositories.ActivityRepository;
 import com.example.splitwise.repositories.BalanceSheetRepository;
 import com.example.splitwise.repositories.TransactionsRepository;
 import com.example.splitwise.repositories.UserRespository;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 @Service
-public class ExpenseManager {
+public class ExpenseManagementService {
 
 
     @Autowired
@@ -24,15 +22,18 @@ public class ExpenseManager {
     @Autowired
     BalanceSheetRepository balanceSheetRepository;
 
-    public void createExpense(String activityId, List<ExactSplit> splitList, ExpenseType expenseType, double totalAmount) {
+    @Autowired
+    ActivityRepository activityRepository;
+
+    public void process(String activityId, List<Split> splitList, ExpenseType expenseType, double totalAmount) {
         double baseShare = totalAmount/splitList.size();
         for (int i=0;i<splitList.size();i++){
-                ExactSplit split = splitList.get(i);
-                double userShare = split.getAmountPaidByUser();
+                Split split = splitList.get(i);
+                double userShare = getAmountPaidByUser(split,totalAmount);
                 double amountOwed = (baseShare - userShare);
                 double amountOwedPerPerson =amountOwed/(splitList.size()-1);
                 for(int j=0;j<splitList.size();j++){
-                    ExactSplit split1 =splitList.get(j);
+                    Split split1 =splitList.get(j);
                     if(Objects.isNull(balanceSheetRepository.getBalance(split.getUserId(),split1.getUserId()))) {
                         BalanceSheet balanceSheet = BalanceSheet.builder()
                                 .activityId(activityId)
@@ -50,6 +51,25 @@ public class ExpenseManager {
             }
 
 
+    }
+
+    private double getAmountPaidByUser(Split split, double totalAmount) {
+        switch (split.getSplitType()){
+            case PERCENTAGE:
+                return getAmount(split)*totalAmount;
+            case EXACT:
+                return getAmount(split);
+        }
+        return 0;
+    }
+    public double getAmount(Split split){
+        switch (split.getSplitType()){
+            case PERCENTAGE:
+                return split.getPercentageSplit().getPercentageShare();
+            case EXACT:
+                return split.getExactSplit().getAmountPaidByUser();
+        }
+        return 0;
     }
 
 
@@ -109,4 +129,37 @@ public class ExpenseManager {
         transactionsRepository.addTransaction(transaction );
     }
 
+
+    public ExpenseType getExpenseType(SplitType splitType){
+        switch (splitType){
+            case EXACT:
+                return ExpenseType.EXACT;
+            case PERCENTAGE:
+                return ExpenseType.PERCENTAGE;
+        }
+        return null;
+    }
+    public void addExpenses(List<Split> splitList) {
+
+        Activity activity =Activity.builder()
+                .activityName(splitList.get(0).getActivityName())
+                .transactions(new ArrayList<>())
+                .splitList(splitList)
+                .expenseType(getExpenseType(splitList.get(0).getSplitType()))
+                .id(UUID.randomUUID().toString())
+                .build();
+        double totalAmount =0;
+        for(Split split : splitList){
+            totalAmount+= getAmount(split);
+            Transaction transaction =new Transaction();
+            transaction.setTransactionId(UUID.randomUUID().toString());
+            transaction.setUserFrom(split.getUserId());
+            transaction.setAmount(getAmount(split));
+            transactionsRepository.addTransaction(transaction);
+            activity.getTransactions().add(transaction);
+        };
+        activityRepository.addActivity(activity);
+        process(activity.getId(),splitList,activity.getExpenseType(),totalAmount);
+
+    }
 }
